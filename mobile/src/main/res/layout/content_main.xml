@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="105dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
 
@@ -23,6 +23,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="What's The Weather Like ?" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Let's Click!"/>
 
     </LinearLayout>
 
@@ -43,23 +50,21 @@
 
             <ImageView
                 android:id="@+id/image_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/cloudy" />
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:src="@drawable/question"/>
 
             <TextView
                 android:id="@+id/text_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Cloudy" />
+                android:layout_gravity="center"/>
 
             <TextView
                 android:id="@+id/text_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Sinem" />
+                android:layout_gravity="center"/>
 
 
 
@@ -72,23 +77,22 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/rainy" />
+                android:id="@+id/image_2"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:src="@drawable/question"/>
 
             <TextView
                 android:id="@+id/text_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Sinem" />
+                android:layout_gravity="center"/>
 
             <TextView
                 android:id="@+id/text_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Sinem" />
+                android:layout_gravity="center"/>
 
 
 
@@ -100,23 +104,22 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/sunny" />
+                android:id="@+id/image_3"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:src="@drawable/question"/>
 
             <TextView
                 android:id="@+id/text_5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Sunny" />
+                android:layout_gravity="center"/>
 
             <TextView
                 android:id="@+id/text_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Sinem" />
+                android:layout_gravity="center"/>
 
 
         </LinearLayout>
