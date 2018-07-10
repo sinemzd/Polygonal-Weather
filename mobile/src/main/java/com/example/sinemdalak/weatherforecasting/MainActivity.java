@@ -1,55 +1,69 @@
 package com.example.sinemdalak.weatherforecasting;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.icu.text.SimpleDateFormat;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.io.IOException;
+import android.widget.Toast;
+
+import com.example.sinemdalak.weatherforecasting.model.Example;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity {
 
     TextView changingText;
     FloatingActionButton fab;
-    String url = "https://api.openweathermap.org/data/2.5/forecast?id=745044&appid=4509d4e4fe84d0523805a73785201aae";
-    private OkHttpClient client;
-    TextView text, text2, text3, text4, text5, text6;
+    //String url = "https://api.openweathermap.org/data/2.5/forecast?id=745044&appid=4509d4e4fe84d0523805a73785201aae";
+    TextView text, text2, text3, text4, text5, text6, txtCity;
     ImageView image1, image2, image3;
     Button button;
-    String key, key2, key3;
     String urlImage = "https://openweathermap.org/img/w/";
-    private Context context = MainActivity.this;
+    private Context context ;
+    ApiInterface apiService;
+    Example example;
+    int temperatureInteger, temperatureInteger2, temperatureInteger3;
+    String newDateStr, newDateStr2, newDateStr3;
+    String icon, icon2, icon3;
+    StringBuilder sb, sb2, sb3;
+    LocationManager locationManager;
+    private static final int REQUEST_LOCATION = 1;
+    String lattitude, longitude;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (android.os.Build.VERSION.SDK_INT > 9)
-        {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        context=getApplication();
         fab = findViewById(R.id.fab);
         changingText = findViewById(R.id.text_to_change);
 
@@ -66,11 +80,98 @@ public class MainActivity extends AppCompatActivity {
 
         button = findViewById(R.id.button);
 
-        client = new OkHttpClient();
+        txtCity = findViewById(R.id.text_city);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION
+        },REQUEST_LOCATION);
+
+        apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<Example> call;
+        call = apiService.getExampleResponse("745044","4509d4e4fe84d0523805a73785201aae");
+        call.enqueue(new Callback<Example>() {
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onResponse(Call call, retrofit2.Response response) {
+                Log.d("Response :", response.body().toString());
+                example = (Example) response.body();
+                Log.d("Example :", response.body().toString());
+
+                double temperature = ((example.getList().get(0).getMain().getTemp()) - 273.15);
+                double temperature2 = ((example.getList().get(8).getMain().getTemp()) - 273.15);
+                double temperature3 = ((example.getList().get(16).getMain().getTemp()) - 273.15);
+
+                temperatureInteger = (int) temperature;
+                temperatureInteger2 = (int) temperature2;
+                temperatureInteger3 = (int) temperature3;
+
+                String time = example.getList().get(0).getDtTxt();
+                String time2 = example.getList().get(8).getDtTxt();
+                String time3 = example.getList().get(16).getDtTxt();
+
+                //time1
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = null;
+                try {
+                    date = formatter.parse(time);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter = new SimpleDateFormat("EEE, MMMM dd");
+                newDateStr = postFormatter.format(date);
+
+                //time2
+                SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date2 = null;
+                try {
+                    date2 = formatter2.parse(time2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter2 = new SimpleDateFormat("EEE, MMMM dd");
+                newDateStr2 = postFormatter2.format(date2);
+
+                //time3
+                SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date3 = null;
+                try {
+                    date3 = formatter3.parse(time3);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter3 = new SimpleDateFormat("EEE, MMMM dd");
+                newDateStr3 = postFormatter3.format(date3);
+
+                icon = example.getList().get(0).getWeather().get(0).getIcon();
+                icon2 = example.getList().get(8).getWeather().get(0).getIcon();
+                icon3 = example.getList().get(16).getWeather().get(0).getIcon();
+
+                sb = new StringBuilder(urlImage);
+                sb2 = new StringBuilder(urlImage);
+                sb3 = new StringBuilder(urlImage);
+
+                sb.append(String.format(icon + ".png"));
+                sb2.append(String.format(icon2 + ".png"));
+                sb3.append(String.format(icon3 + ".png"));
+
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Log.d("Error service :", t.toString());
+            }
+        });
+
         changeText();
 
 
-}
+    }
 
     private void changeText() {
 
@@ -80,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "My action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
+
             }
         });
 
@@ -87,180 +189,79 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                changingText.setText("Three Day Weather Forcast");
+                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                    buildAlertMessageNoGps();
+                }else if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                    getLocation();
+                }
 
-                getWebService();
+                txtCity.setText(lattitude+" "+longitude);
+
+                changingText.setText("Three Day Weather Forcast");
+                text.setText(newDateStr);
+                text2.setText(temperatureInteger + "℃");
+                text3.setText(newDateStr2);
+                text4.setText(temperatureInteger2 + "℃");
+                text5.setText(newDateStr3);
+                text6.setText(temperatureInteger3 + "℃");
+
+                GlideApp.with(context).load(sb.toString()).into(image1);
+                GlideApp.with(context).load(sb2.toString()).into(image2);
+                GlideApp.with(context).load(sb3.toString()).into(image3);
+
+
 
             }
         });
 
     }
 
+    private void getLocation(){
+        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            },REQUEST_LOCATION);
+        }else{
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-    private void getWebService() {
-        Request request = new Request.Builder()
-                .url(url).build();
+            if(location != null){
+                double latti = location.getLatitude();
+                double longi = location.getLongitude();
+                lattitude = String.valueOf(latti);
+                longitude = String.valueOf(longi);
 
-        client.newCall(request).enqueue(new Callback() {
 
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
+            }else{
+                Toast.makeText(this,"Unable to trace your location",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    protected void buildAlertMessageNoGps(){
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Please turn on your GPS connection")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
-                    public void run() {
-                        text.setText("Failure");
-                        text2.setText("Failure");
-                        text3.setText("Failure");
-                        text4.setText("Failure");
-                        text5.setText("Failure");
-                        text6.setText("Failure");
+                    public void onClick(DialogInterface dialogInterface, int id) {
+
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        dialogInterface.cancel();
+
                     }
                 });
-
-            }
-
-            @Override
-            public void onResponse(Call call,  Response response) throws IOException {
-                final String tempResponse=response.body().string();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-
-                            //text
-                            JSONObject jsonObject = new JSONObject(tempResponse);
-                            JSONObject jsonObject2 = new JSONObject(tempResponse);
-                            JSONObject jsonObject3 = new JSONObject(tempResponse);
-
-                            //image
-                            JSONObject jsonObjectImage = new JSONObject(tempResponse);
-                            JSONObject jsonObjectImage2 = new JSONObject(tempResponse);
-                            JSONObject jsonObjectImage3 = new JSONObject(tempResponse);
-
-                            //time
-                            JSONObject jsonObjectTime = new JSONObject(tempResponse);
-                            JSONObject jsonObjectTime2 = new JSONObject(tempResponse);
-                            JSONObject jsonObjectTime3 = new JSONObject(tempResponse);
-
-                            //text
-                            JSONArray jsonArray = new JSONArray (jsonObject.getString("list"));
-                            JSONArray jsonArray2 = new JSONArray (jsonObject2.getString("list"));
-                            JSONArray jsonArray3 = new JSONArray (jsonObject3.getString("list"));
-
-                            //image
-                            JSONArray jsonArrayImage = new JSONArray(jsonObjectImage.getString("list"));
-                            JSONArray jsonArrayImage2 = new JSONArray(jsonObjectImage2.getString("list"));
-                            JSONArray jsonArrayImage3 = new JSONArray(jsonObjectImage3.getString("list"));
-
-                            //time
-                            JSONArray jsonArrayTime = new JSONArray (jsonObjectTime.getString("list"));
-                            JSONArray jsonArrayTime2 = new JSONArray (jsonObjectTime2.getString("list"));
-                            JSONArray jsonArrayTime3 = new JSONArray (jsonObjectTime3.getString("list"));
-
-
-                            //text
-                            JSONObject array = new JSONObject(jsonArray.getString(0));
-                            JSONObject array2 = new JSONObject(jsonArray2.getString(8));
-                            JSONObject array3 = new JSONObject(jsonArray3.getString(16));
-
-                            //image
-                            JSONObject array4 = new JSONObject(jsonArrayImage.getString(0));
-                            JSONObject array5 = new JSONObject(jsonArrayImage2.getString(0));
-                            JSONObject array6 = new JSONObject(jsonArrayImage3.getString(0));
-
-                            //image
-                            JSONArray arrayImage = new JSONArray(array4.getString("weather"));
-                            JSONArray arrayImage2 = new JSONArray(array5.getString("weather"));
-                            JSONArray arrayImage3 = new JSONArray(array6.getString("weather"));
-
-                            //time
-                            JSONObject timeObject = new JSONObject(jsonArrayTime.getString(0));
-                            JSONObject timeObject2 = new JSONObject(jsonArrayTime2.getString(8));
-                            JSONObject timeObject3 = new JSONObject(jsonArrayTime3.getString(16));
-
-                            //text
-                            JSONObject weatherData = new JSONObject(array.getString("main"));
-                            JSONObject weatherData2 = new JSONObject(array2.getString("main"));
-                            JSONObject weatherData3 = new JSONObject(array3.getString("main"));
-
-                            //image
-                            JSONObject weatherPicture = new JSONObject(arrayImage.getString(0));
-                            JSONObject weatherPicture2 = new JSONObject(arrayImage2.getString(0));
-                            JSONObject weatherPicture3 = new JSONObject(arrayImage3.getString(0));
-
-                            //time
-                            String dateStr = timeObject.getString("dt_txt");
-                            String dateStr2 = timeObject2.getString("dt_txt");
-                            String dateStr3 = timeObject3.getString("dt_txt");
-
-                            //text
-                            Double temperature = Double.parseDouble(weatherData.getString("temp"));
-                            Double temperature2 = Double.parseDouble(weatherData2.getString("temp"));
-                            Double temperature3 = Double.parseDouble(weatherData3.getString("temp"));
-
-                            //image
-                            key = weatherPicture.getString("icon");
-                            key2 = weatherPicture2.getString("icon");
-                            key3 = weatherPicture3.getString("icon");
-
-                            //time1
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date dateObj = formatter.parse(dateStr);
-                            SimpleDateFormat postFormatter = new SimpleDateFormat("EEE, MMMM dd");
-                            String newDateStr = postFormatter.format(dateObj);
-
-                            //time2
-                            SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date dateObj2 = formatter2.parse(dateStr2 );
-                            SimpleDateFormat postFormatter2 = new SimpleDateFormat("EEE, MMMM dd");
-                            String newDateStr2 = postFormatter2.format(dateObj2);
-
-                            //time3
-                            SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date dateObj3 = formatter3.parse(dateStr3);
-                            SimpleDateFormat postFormatter3 = new SimpleDateFormat("EEE, MMMM dd");
-                            String newDateStr3 = postFormatter3.format(dateObj3);
-
-                            int temperatureInt = (int) (temperature - 273.15);
-                            int temperatureInt2 = (int) (temperature2 - 273.15);
-                            int temperatureInt3 = (int) (temperature3 - 273.15);
-
-                            //city
-                            JSONObject cityData = new JSONObject(jsonObject.getString("city"));
-                            String placeName = cityData.getString("name");
-
-                            text.setText(newDateStr);
-                            text2.setText(String.valueOf(temperatureInt + "℃"));
-                            text3.setText(newDateStr2);
-                            text4.setText(String.valueOf(temperatureInt2 + "℃"));
-                            text5.setText(newDateStr3);
-                            text6.setText(String.valueOf(temperatureInt3 + "℃"));
-
-
-                            StringBuilder sb = new StringBuilder(urlImage);
-                            StringBuilder sb2 = new StringBuilder(urlImage);
-                            StringBuilder sb3 = new StringBuilder(urlImage);
-
-                            sb.append(String.format(key+".png"));
-                            sb2.append(String.format(key2+".png"));
-                            sb3.append(String.format(key3+".png"));
-
-                            GlideApp.with(context).load(sb.toString()).into(image1);
-                            GlideApp.with(context).load(sb2.toString()).into(image2);
-                            GlideApp.with(context).load(sb3.toString()).into(image3);
-
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        });
-
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override
