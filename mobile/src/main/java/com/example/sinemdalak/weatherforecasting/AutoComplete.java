@@ -3,9 +3,13 @@ package com.example.sinemdalak.weatherforecasting;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -15,6 +19,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
 import java.io.IOException;
@@ -41,6 +47,7 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
     InputMethodManager inputMethodManager;
     RecyclerViewAdapter.ItemClickListener itemClickListener;
     ImageView imgbtn3;
+    TextView text;
 
 
     @Override
@@ -54,9 +61,11 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
         autoCompleteTextView = findViewById(R.id.auto_city);
         imgbtn3 = findViewById(R.id.imgbtn3);
+        text = findViewById(R.id.find_text);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "VAG_Rounded_Bold.ttf");
         autoCompleteTextView.setTypeface(typeface);
+        text.setTypeface(typeface);
 
         clickImgButton();
 
@@ -75,7 +84,14 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        //edittext e yazdığım şehir ismini takip ediyor
+        //divider
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),R.drawable.style_divider);
+        itemDecoration.setDrawable(drawable);
+        recyclerView.addItemDecoration(itemDecoration);
+
+
+        //edittext e yazdığım şehir ismini takip ediyor butonsuz
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -107,7 +123,6 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
                 }
             }
         });
-
 
     }
 

@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Result ";
     TextView text, text2, text3, text4, text5, text6, text7, text8, text9, text10, txtCity;
     ImageView image1, image2, image3, image4, image5, imgbtn, imgbtn2;
-    String urlImage = "https://openweathermap.org/img/w/";
+    //String urlImage = "https://openweathermap.org/img/w/";
     private Context context ;
     ApiInterface apiService;
     Example example;
@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             sunrise = intent.getStringExtra("Sunrise");
 
             //Toast.makeText(context,receivedData,Toast.LENGTH_LONG).show();
+
+            //klavye kapansın
             getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
             );
@@ -311,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        SimpleDateFormat postFormatter2 = new SimpleDateFormat("dd MMMM - EEE");
+        SimpleDateFormat postFormatter2 = new SimpleDateFormat("EEE");
         newDateStr2 = postFormatter2.format(date2);
 
         //time3
@@ -322,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        SimpleDateFormat postFormatter3 = new SimpleDateFormat("dd MMMM - EEE");
+        SimpleDateFormat postFormatter3 = new SimpleDateFormat("EEE");
         newDateStr3 = postFormatter3.format(date3);
 
         //time4
@@ -333,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        SimpleDateFormat postFormatter4 = new SimpleDateFormat("dd MMMM - EEE");
+        SimpleDateFormat postFormatter4 = new SimpleDateFormat("EEE");
         newDateStr4 = postFormatter4.format(date4);
 
         //time5
@@ -344,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        SimpleDateFormat postFormatter5 = new SimpleDateFormat("dd MMMM - EEEd");
+        SimpleDateFormat postFormatter5 = new SimpleDateFormat("EEE");
         newDateStr5 = postFormatter5.format(date5);
 
         icon = example.getList().get(0).getWeather().get(0).getIcon();

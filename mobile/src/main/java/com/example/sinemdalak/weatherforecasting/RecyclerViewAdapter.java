@@ -34,7 +34,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         String country = String.valueOf(data.get(i).getCountry());
         Typeface typeface = Typeface.createFromAsset(viewHolder.itemView.getContext().getAssets(), "VAG_Rounded_Bold.ttf");
         viewHolder.text.setTypeface(typeface);
-        viewHolder.text.setText(city + " " + country);
+        viewHolder.text.setText(city + " - " + country);
 
     }
 
