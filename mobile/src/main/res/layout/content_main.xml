@@ -31,11 +31,18 @@
 
         android:id="@+id/text_city"
         android:layout_marginTop="23dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:gravity="center_horizontal"
+        android:layout_toLeftOf="@id/imgbtn2"
+        android:layout_toRightOf="@id/imgbtn"
         android:textColor="#ffffff"
-        android:textSize="22sp"/>
+        app:autoSizeMaxTextSize="22sp"
+        app:autoSizeMinTextSize="16sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        android:maxLines="1"
+        tools:ignore="MissingPrefix" />
 
     <ImageView
 
@@ -96,14 +103,13 @@
 
     <LinearLayout
         android:layout_below="@id/relative_layout_2"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="50dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="193dp"
         android:orientation="horizontal"
-        android:background="@drawable/brown_overlay">
+        android:background="@drawable/brown_overlay" >
 
         <RelativeLayout
 
@@ -137,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textColor="#ffffff"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_centerHorizontal="true"/>
 
 
@@ -175,7 +181,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textColor="#ffffff"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_centerHorizontal="true"/>
 
 
@@ -213,7 +219,7 @@
               android:layout_height="wrap_content"
               android:textSize="20sp"
               android:textColor="#ffffff"
-              android:layout_marginTop="30dp"
+              android:layout_marginTop="20dp"
               android:layout_centerHorizontal="true"/>
 
 
@@ -251,7 +257,7 @@
               android:layout_height="wrap_content"
               android:textSize="20sp"
               android:textColor="#ffffff"
-              android:layout_marginTop="30dp"
+              android:layout_marginTop="20dp"
               android:layout_centerHorizontal="true"/>
 
 
