@@ -3,13 +3,9 @@ package com.example.sinemdalak.weatherforecasting;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -19,9 +15,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -43,11 +38,14 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
     ServiceInterface service;
     RecyclerViewAdapter adapter;
     RecyclerView recyclerView;
-    String ID, Sunrise, Sunset;
+    String ID;
     InputMethodManager inputMethodManager;
     RecyclerViewAdapter.ItemClickListener itemClickListener;
     ImageView imgbtn3;
     TextView text;
+    Intent intent;
+    RelativeLayout background_2;
+
 
 
     @Override
@@ -59,15 +57,24 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
             StrictMode.setThreadPolicy(policy);
         }
 
+        intent = getIntent();
+
         autoCompleteTextView = findViewById(R.id.auto_city);
         imgbtn3 = findViewById(R.id.imgbtn3);
         text = findViewById(R.id.find_text);
+        background_2 = findViewById(R.id.main_layout2);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "VAG_Rounded_Bold.ttf");
         autoCompleteTextView.setTypeface(typeface);
         text.setTypeface(typeface);
 
         clickImgButton();
+
+        try {
+            getIntentSetBackground();
+        }catch (Exception e){
+            background_2.setBackgroundResource(R.drawable.summer_background);
+        }
 
         //klavye otomatik açılsın
         inputMethodManager = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -83,13 +90,6 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        //divider
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),R.drawable.style_divider);
-        itemDecoration.setDrawable(drawable);
-        recyclerView.addItemDecoration(itemDecoration);
-
 
         //edittext e yazdığım şehir ismini takip ediyor butonsuz
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
@@ -130,10 +130,33 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
         imgbtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent activity = new Intent(AutoComplete.this, MainActivity.class);
-                startActivity(activity);
+                Intent intent = new Intent(AutoComplete.this, MainActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
             }
         });
+    }
+
+    public void getIntentSetBackground(){
+
+            String icon = intent.getStringExtra("icon");
+            String time = intent.getStringExtra("time");
+            Integer result = Integer.parseInt(time);
+
+        if(result > 19){
+            background_2.setBackgroundResource(R.drawable.night_background);
+        }else if(icon.contains("03d") || icon.contains("03n")
+                || icon.contains("04d") || icon.contains("04n")
+                || icon.contains("09d") || icon.contains("09n")
+                || icon.contains("10d") || icon.contains("10n")
+                || icon.contains("11d") || icon.contains("11n")
+                || icon.contains("13d") || icon.contains("13n")
+                || icon.contains("50d") || icon.contains("50n")){
+            background_2.setBackgroundResource(R.drawable.cold_background);
+        }else if (icon.contains("01d") || icon.contains("01n")
+                || icon.contains("02d") || icon.contains("02n")){
+            background_2.setBackgroundResource(R.drawable.summer_background);
+        }
     }
 
 
@@ -165,16 +188,12 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
     @Override
     public void onItemClick(View view, int position) {
         ID = adapter.getCity(position);
-        Sunrise = adapter.getSunrise(position);
-        Sunset = adapter.getSunset(position);
         //Toast.makeText(this, "You clicked " + adapter.getCity(position), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(AutoComplete.this, MainActivity.class);
         intent.putExtra("ID", ID);
-        intent.putExtra("Sunrise", Sunrise);
-        intent.putExtra("Sunset", Sunset);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
         context.startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
 
     }
 

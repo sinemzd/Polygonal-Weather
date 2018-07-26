@@ -1,6 +1,8 @@
 package com.example.sinemdalak.weatherforecasting;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,10 +14,13 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,41 +30,49 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.sinemdalak.weatherforecasting.model.Example;
 import com.example.sinemdalak.weatherforecasting.utils.GlideApp;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.app.PendingIntent.getActivity;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Result ";
     TextView text, text2, text3, text4, text5, text6, text7, text8, text9, text10, txtCity;
     ImageView image1, image2, image3, image4, image5, imgbtn, imgbtn2;
-    //String urlImage = "https://openweathermap.org/img/w/";
     private Context context ;
     ApiInterface apiService;
     Example example;
     int temperatureInteger, temperatureInteger2, temperatureInteger3, temperatureInteger4, temperatureInteger5;
     String newDateStr, newDateStr2, newDateStr3, newDateStr4, newDateStr5;
     String icon, icon2, icon3, icon4, icon5;
-    //StringBuilder sb, sb2, sb3, sb4, sb5;
     LocationManager locationManager;
     private static final int REQUEST_LOCATION = 1;
     String lattitude, longitude;
     Intent intent;
-    String receivedData, sunset, sunrise;
-    //String sunriseFormatted, sunsetFormatted;
+    String receivedData;
     Typeface typeface;
-
-
+    RelativeLayout layout, background;
+    Boolean isClicked = false;
+    LinearLayout overlay;
+    Date date;
+    Integer result;
+    String time;
+    AdView adView;
+    String mood;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -72,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         context = getApplication();
         imgbtn = findViewById(R.id.imgbtn);
         imgbtn2 = findViewById(R.id.imgbtn2);
+        layout = findViewById(R.id.relative_layout_2);
+        background = findViewById(R.id.main_layout);
+        overlay = findViewById(R.id.linearLayout);
 
         text = findViewById(R.id.text_1);
         text2 = findViewById(R.id.text_2);
@@ -115,14 +131,11 @@ public class MainActivity extends AppCompatActivity {
         },REQUEST_LOCATION);
 
         clickImageButton();
+        clickLayout();
 
         intent = getIntent();
         if(intent != null){
             receivedData = intent.getStringExtra("ID");
-            sunset = intent.getStringExtra("Sunset");
-            sunrise = intent.getStringExtra("Sunrise");
-
-            //Toast.makeText(context,receivedData,Toast.LENGTH_LONG).show();
 
             //klavye kapansın
             getWindow().setSoftInputMode(
@@ -139,15 +152,57 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        MobileAds.initialize(this, "ca-app-pub-7683616394936974~2469361229");
+        adView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        adView.loadAd(adRequest);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void getDate() {
+        Calendar rightNow = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH");
+        time = simpleDateFormat.format(rightNow.getTime());
+        result = Integer.parseInt(time);
+    }
+
+    private void clickLayout(){
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isClicked){
+                   isClicked = false;
+               }else{
+                   isClicked = true;
+               }
+
+                getTemperature(isClicked);
+
+            }
+        });
+    }
+
+   /* public void getNotification(View view){
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 49);
+        calendar.set(Calendar.SECOND, 30);
+
+        Intent intent = new Intent(getApplicationContext(),Notification.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),100,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        //alarm will be triggered even if the phone is off
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+    }*/
 
     private void clickImageButton() {
 
         imgbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "My Current Location", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
                     buildAlertMessageNoGps();
@@ -163,7 +218,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent activity = new Intent(MainActivity.this,AutoComplete.class);
-                startActivity(activity);
+                try {
+                    activity.putExtra("icon", icon);
+                    activity.putExtra("time", time);
+                    activity.setFlags(activity.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(activity);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                }catch(Exception e){
+                    startActivity(activity);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
+                }
             }
         });
 
@@ -246,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     private void getWeatherByID(String receivedData){
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
@@ -269,20 +333,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+   /* public void showNotification(View view){
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        //set icon to notification
+        //builder.setSmallIcon(R.drawable.app_icon);
+        builder.setContentTitle("Weather Forecasting");
+        builder.setContentText("Weather mood " + mood);
+        Intent intent = new Intent();
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+    }*/
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void getData(Example example){
-        double temperature = ((example.getList().get(0).getMain().getTemp()) - 273.15);
-        double temperature2 = ((example.getList().get(8).getMain().getTemp()) - 273.15);
-        double temperature3 = ((example.getList().get(16).getMain().getTemp()) - 273.15);
-        double temperature4 = ((example.getList().get(24).getMain().getTemp()) - 273.15);
-        double temperature5 = ((example.getList().get(32).getMain().getTemp()) - 273.15);
 
-        temperatureInteger = (int) temperature;
-        temperatureInteger2 = (int) temperature2;
-        temperatureInteger3 = (int) temperature3;
-        temperatureInteger4 = (int) temperature4;
-        temperatureInteger5 = (int) temperature5;
-
+        getTemperature(isClicked);
 
         String time = example.getList().get(0).getDtTxt();
         String time2 = example.getList().get(8).getDtTxt();
@@ -292,7 +358,6 @@ public class MainActivity extends AppCompatActivity {
 
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
-
 
         //time1
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -356,87 +421,112 @@ public class MainActivity extends AppCompatActivity {
         icon5 = example.getList().get(32).getWeather().get(0).getIcon();
 
         getImage(icon, image1);
+        getBackGroundChanger(icon);
         getImage(icon2, image2);
         getImage(icon3, image3);
         getImage(icon4, image4);
         getImage(icon5, image5);
 
-
-        /*sb = new StringBuilder(urlImage);
-        sb2 = new StringBuilder(urlImage);
-        sb3 = new StringBuilder(urlImage);
-        sb4 = new StringBuilder(urlImage);
-        sb5 = new StringBuilder(urlImage);
-
-        sb.append(String.format(icon + ".png"));
-        sb2.append(String.format(icon2 + ".png"));
-        sb3.append(String.format(icon3 + ".png"));
-        sb4.append(String.format(icon4 + ".png"));
-        sb5.append(String.format(icon5 + ".png"));*/
-
         txtCity.setText(location + " - " + country);
 
         text.setText(newDateStr);
-        text2.setText(temperatureInteger + "°c");
         text3.setText(newDateStr2);
-        text4.setText(temperatureInteger2 + "°c");
         text5.setText(newDateStr3);
-        text6.setText(temperatureInteger3 + "°c");
         text7.setText(newDateStr4);
-        text8.setText(temperatureInteger4 + "°c");
         text9.setText(newDateStr5);
-        text10.setText(temperatureInteger5 + "°c");
 
-        /*GlideApp.with(context).load(sb.toString()).into(image1);
-        GlideApp.with(context).load(sb2.toString()).into(image2);
-        GlideApp.with(context).load(sb3.toString()).into(image3);
-        GlideApp.with(context).load(sb4.toString()).into(image4);
-        GlideApp.with(context).load(sb5.toString()).into(image5);*/
+        mood = example.getList().get(0).getWeather().get(0).getDescription();
 
+    }
+
+    public void getTemperature(boolean isClicked){
+
+        if(isClicked){
+
+            double temperature = (((example.getList().get(0).getMain().getTemp()) - 273.15) * 1.8 + 32);
+            double temperature2 = (((example.getList().get(8).getMain().getTemp()) - 273.15) * 1.8 + 32);
+            double temperature3 = (((example.getList().get(16).getMain().getTemp()) - 273.15) * 1.8 + 32);
+            double temperature4 = (((example.getList().get(24).getMain().getTemp()) - 273.15) * 1.8 + 32);
+            double temperature5 = (((example.getList().get(32).getMain().getTemp()) - 273.15) * 1.8 + 32);
+
+            temperatureInteger = (int) temperature;
+            temperatureInteger2 = (int) temperature2;
+            temperatureInteger3 = (int) temperature3;
+            temperatureInteger4 = (int) temperature4;
+            temperatureInteger5 = (int) temperature5;
+
+            text2.setText(temperatureInteger + "°F");
+            text4.setText(temperatureInteger2 + "°F");
+            text6.setText(temperatureInteger3 + "°F");
+            text8.setText(temperatureInteger4 + "°F");
+            text10.setText(temperatureInteger5 + "°F");
+
+        }else {
+
+            double temperature = ((example.getList().get(0).getMain().getTemp()) - 273.15);
+            double temperature2 = ((example.getList().get(8).getMain().getTemp()) - 273.15);
+            double temperature3 = ((example.getList().get(16).getMain().getTemp()) - 273.15);
+            double temperature4 = ((example.getList().get(24).getMain().getTemp()) - 273.15);
+            double temperature5 = ((example.getList().get(32).getMain().getTemp()) - 273.15);
+
+            temperatureInteger = (int) temperature;
+            temperatureInteger2 = (int) temperature2;
+            temperatureInteger3 = (int) temperature3;
+            temperatureInteger4 = (int) temperature4;
+            temperatureInteger5 = (int) temperature5;
+
+            text2.setText(temperatureInteger + "°C");
+            text4.setText(temperatureInteger2 + "°C");
+            text6.setText(temperatureInteger3 + "°C");
+            text8.setText(temperatureInteger4 + "°C");
+            text10.setText(temperatureInteger5 + "°C");
+
+        }
     }
 
     public void getImage(String icon, ImageView image){
         if(icon.contains("01d") || icon.contains("01n")){
-            GlideApp.with(context).load(R.drawable.img_weather_clearsky).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_clearsky).centerInside().into(image);
         }else if(icon.contains("02d") || icon.contains("02n")){
-            GlideApp.with(context).load(R.drawable.img_weather_fewclouds).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_fewclouds).centerInside().into(image);
         }else if(icon.contains("03d") || icon.contains("03n")){
-            GlideApp.with(context).load(R.drawable.img_weather_scatteredclouds).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_scatteredclouds).centerInside().into(image);
+        }else if(icon.contains("04d") || icon.contains("04n")){
+            GlideApp.with(context).load(R.drawable.img_weather_brokenclouds).centerInside().into(image);
         }else if(icon.contains("09d")|| icon.contains("09n")){
-            GlideApp.with(context).load(R.drawable.img_weather_showerrain).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_showerrain).centerInside().into(image);
         }else if(icon.contains("10d") || icon.contains("10n")){
-            GlideApp.with(context).load(R.drawable.img_weather_rain).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_rain).centerInside().into(image);
         }else if(icon.contains("11d") || icon.contains("11n")){
-            GlideApp.with(context).load(R.drawable.img_weather_thunderstorm).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_thunderstorm).centerInside().into(image);
         }else if(icon.contains("13d") || icon.contains("13n")){
-            GlideApp.with(context).load(R.drawable.img_weather_snow).into(image);
+            GlideApp.with(context).load(R.drawable.img_weather_snow).centerInside().into(image);
+        }else if(icon.contains("50d") || icon.contains("50n")){
+            GlideApp.with(context).load(R.drawable.img_weather_mist).centerInside().into(image);
         }
     }
 
-    /*//getting sunset and sunrise
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void sunsetriseFormatter(){
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        Date date = null;
-        try {
-            date = formatter.parse(sunrise);
-        } catch (ParseException e) {
-            e.printStackTrace();
+    public void getBackGroundChanger(String icon){
+        getDate();
+        if(result > 19){
+            background.setBackgroundResource(R.drawable.night_background);
+            overlay.setBackgroundResource(R.drawable.night_overlay);
+        }else if(icon.contains("03d") || icon.contains("03n")
+                || icon.contains("04d") || icon.contains("04n")
+                || icon.contains("09d")|| icon.contains("09n")
+                || icon.contains("10d") || icon.contains("10n")
+                || icon.contains("11d") || icon.contains("11n")
+                || icon.contains("13d") || icon.contains("13n")
+                || icon.contains("50d") || icon.contains("50n")){
+            background.setBackgroundResource(R.drawable.cold_background);
+            overlay.setBackgroundResource(R.drawable.cold_overlay);
+        }else if (icon.contains("01d") || icon.contains("01n")
+                || icon.contains("02d") || icon.contains("02n")){
+            background.setBackgroundResource(R.drawable.summer_background);
+            overlay.setBackgroundResource(R.drawable.summer_overlay);
         }
-        SimpleDateFormat postFormatter = new SimpleDateFormat("HH:mm:ss");
-        sunriseFormatted = postFormatter.format(date);
-
-        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        Date date2 = null;
-        try{
-            date2 = formatter2.parse(sunset);
-        }catch(ParseException e){
-           e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter2 = new SimpleDateFormat("HH:mm:ss");
-        sunsetFormatted = postFormatter2.format(date2);
-    }*/
-
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

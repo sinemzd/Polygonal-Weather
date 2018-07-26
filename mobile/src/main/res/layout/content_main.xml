@@ -7,7 +7,8 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main"
-    android:background="@drawable/summer"
+    android:background="@drawable/default_background"
+    android:id="@+id/main_layout"
     android:fitsSystemWindows="true">
 
    <RelativeLayout
@@ -38,11 +39,11 @@
         android:layout_toRightOf="@id/imgbtn"
         android:textColor="#ffffff"
         app:autoSizeMaxTextSize="22sp"
-        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMinTextSize="10sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
         android:maxLines="1"
-        tools:ignore="MissingPrefix" />
+        tools:ignore="MissingPrefix"/>
 
     <ImageView
 
@@ -59,22 +60,22 @@
 
 
     <RelativeLayout
-
-        android:layout_below="@id/relative_layout_1"
-        android:id="@+id/relative_layout_2"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical">
+        android:layout_marginTop="60dp"
+        android:id="@+id/relative_layout_2"
+        android:layout_width="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true">
 
         <TextView
 
             android:id="@+id/text_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="210dp"
+            android:layout_marginTop="200dp"
             android:textSize="110sp"
             android:textColor="#ffffff"
             android:layout_centerHorizontal="true"/>
@@ -82,10 +83,9 @@
         <ImageView
 
             android:id="@+id/image_1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
             android:layout_centerHorizontal="true"/>
 
         <TextView
@@ -101,15 +101,36 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+
+        android:id="@+id/adMob_layer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="223dp">
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-7683616394936974/2254997987" />
+
+    </RelativeLayout>
+
     <LinearLayout
-        android:layout_below="@id/relative_layout_2"
-        android:layout_marginTop="50dp"
+
+        android:id="@+id/linearLayout"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="193dp"
-        android:orientation="horizontal"
-        android:background="@drawable/brown_overlay" >
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal" >
 
         <RelativeLayout
 
@@ -125,15 +146,18 @@
                 android:layout_height="wrap_content"
                 android:textColor="#ffffff"
                 android:textSize="20sp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_centerHorizontal="true"/>
 
             <ImageView
                 android:layout_below="@id/text_4"
                 android:id="@+id/image_2"
-                android:layout_width="95dp"
-                android:layout_height="95dp"
-                android:layout_marginTop="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_centerHorizontal="true"/>
 
             <TextView
@@ -143,7 +167,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textColor="#ffffff"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_centerHorizontal="true"/>
 
 
@@ -163,15 +187,18 @@
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
                 android:textColor="#ffffff"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_centerHorizontal="true"/>
 
             <ImageView
                 android:layout_below="@id/text_6"
                 android:id="@+id/image_3"
-                android:layout_width="95dp"
-                android:layout_height="95dp"
-                android:layout_marginTop="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_centerHorizontal="true"/>
 
             <TextView
@@ -181,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textColor="#ffffff"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_centerHorizontal="true"/>
 
 
@@ -201,15 +228,18 @@
               android:layout_height="wrap_content"
               android:textSize="20dp"
               android:textColor="#ffffff"
-              android:layout_marginTop="10dp"
+              android:layout_marginTop="15dp"
               android:layout_centerHorizontal="true" />
 
           <ImageView
               android:layout_below="@id/text_8"
               android:id="@+id/image_4"
-              android:layout_width="95dp"
-              android:layout_height="95dp"
-              android:layout_marginTop="5dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp"
+              android:layout_marginBottom="10dp"
+              android:layout_marginLeft="10dp"
+              android:layout_marginRight="10dp"
               android:layout_centerHorizontal="true"/>
 
           <TextView
@@ -219,7 +249,7 @@
               android:layout_height="wrap_content"
               android:textSize="20sp"
               android:textColor="#ffffff"
-              android:layout_marginTop="20dp"
+              android:layout_marginTop="10dp"
               android:layout_centerHorizontal="true"/>
 
 
@@ -239,15 +269,18 @@
               android:layout_height="wrap_content"
               android:textSize="20dp"
               android:textColor="#ffffff"
-              android:layout_marginTop="10dp"
+              android:layout_marginTop="15dp"
               android:layout_centerHorizontal="true" />
 
           <ImageView
               android:layout_below="@id/text_10"
               android:id="@+id/image_5"
-              android:layout_width="95dp"
-              android:layout_height="95dp"
-              android:layout_marginTop="5dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp"
+              android:layout_marginBottom="10dp"
+              android:layout_marginLeft="10dp"
+              android:layout_marginRight="10dp"
               android:layout_centerHorizontal="true"/>
 
           <TextView
@@ -257,7 +290,7 @@
               android:layout_height="wrap_content"
               android:textSize="20sp"
               android:textColor="#ffffff"
-              android:layout_marginTop="20dp"
+              android:layout_marginTop="10dp"
               android:layout_centerHorizontal="true"/>
 
 
