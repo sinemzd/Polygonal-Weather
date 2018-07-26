@@ -1,8 +1,6 @@
 package com.example.sinemdalak.weatherforecasting;
 
 import android.Manifest;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,13 +12,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -39,7 +33,6 @@ import com.example.sinemdalak.weatherforecasting.utils.GlideApp;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +40,7 @@ import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.onesignal.OneSignal;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
     Intent intent;
     String receivedData;
     Typeface typeface;
-    RelativeLayout layout, background;
+    RelativeLayout background;
     Boolean isClicked = false;
-    LinearLayout overlay;
+    LinearLayout overlay, overlay_2;
     Date date;
     Integer result;
     String time;
@@ -85,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
         context = getApplication();
         imgbtn = findViewById(R.id.imgbtn);
         imgbtn2 = findViewById(R.id.imgbtn2);
-        layout = findViewById(R.id.relative_layout_2);
         background = findViewById(R.id.main_layout);
         overlay = findViewById(R.id.linearLayout);
+        overlay_2 = findViewById(R.id.layout_overlay);
 
         text = findViewById(R.id.text_1);
         text2 = findViewById(R.id.text_2);
@@ -131,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         },REQUEST_LOCATION);
 
         clickImageButton();
-        clickLayout();
+        clickText();
 
         intent = getIntent();
         if(intent != null){
@@ -167,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
         result = Integer.parseInt(time);
     }
 
-    private void clickLayout(){
-        layout.setOnClickListener(new View.OnClickListener() {
+    private void clickText(){
+        text2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isClicked){
@@ -182,21 +176,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-   /* public void getNotification(View view){
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 49);
-        calendar.set(Calendar.SECOND, 30);
-
-        Intent intent = new Intent(getApplicationContext(),Notification.class);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),100,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        //alarm will be triggered even if the phone is off
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-    }*/
 
     private void clickImageButton() {
 
@@ -332,18 +311,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-   /* public void showNotification(View view){
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        //set icon to notification
-        //builder.setSmallIcon(R.drawable.app_icon);
-        builder.setContentTitle("Weather Forecasting");
-        builder.setContentText("Weather mood " + mood);
-        Intent intent = new Intent();
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-    }*/
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void getData(Example example){
@@ -511,7 +478,8 @@ public class MainActivity extends AppCompatActivity {
         getDate();
         if(result > 19){
             background.setBackgroundResource(R.drawable.night_background);
-            overlay.setBackgroundResource(R.drawable.night_overlay);
+            overlay.setBackgroundResource(R.drawable.night_overlay_big);
+            overlay_2.setBackgroundResource(R.drawable.night_overlay);
         }else if(icon.contains("03d") || icon.contains("03n")
                 || icon.contains("04d") || icon.contains("04n")
                 || icon.contains("09d")|| icon.contains("09n")
@@ -520,11 +488,13 @@ public class MainActivity extends AppCompatActivity {
                 || icon.contains("13d") || icon.contains("13n")
                 || icon.contains("50d") || icon.contains("50n")){
             background.setBackgroundResource(R.drawable.cold_background);
-            overlay.setBackgroundResource(R.drawable.cold_overlay);
+            overlay.setBackgroundResource(R.drawable.cold_overlay_big);
+            overlay_2.setBackgroundResource(R.drawable.cold_overlay);
         }else if (icon.contains("01d") || icon.contains("01n")
                 || icon.contains("02d") || icon.contains("02n")){
             background.setBackgroundResource(R.drawable.summer_background);
-            overlay.setBackgroundResource(R.drawable.summer_overlay);
+            overlay.setBackgroundResource(R.drawable.summer_overlay_big);
+            overlay_2.setBackgroundResource(R.drawable.summer_overlay);
         }
     }
 
