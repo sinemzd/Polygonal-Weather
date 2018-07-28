@@ -73,7 +73,7 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
         try {
             getIntentSetBackground();
         }catch (Exception e){
-            background_2.setBackgroundResource(R.drawable.summer_background);
+            background_2.setBackgroundResource(R.drawable.default_background_autocomplete);
         }
 
         //klavye otomatik açılsın
@@ -139,22 +139,18 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
     public void getIntentSetBackground(){
 
-            String icon = intent.getStringExtra("icon");
-            String time = intent.getStringExtra("time");
-            Integer result = Integer.parseInt(time);
+        String icon = intent.getStringExtra("icon");
 
-        if(result > 19){
+        if(icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
+                || icon.contains("04n") || icon.contains("09n") || icon.contains("10n")
+                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")){
             background_2.setBackgroundResource(R.drawable.night_background);
-        }else if(icon.contains("03d") || icon.contains("03n")
-                || icon.contains("04d") || icon.contains("04n")
-                || icon.contains("09d") || icon.contains("09n")
-                || icon.contains("10d") || icon.contains("10n")
-                || icon.contains("11d") || icon.contains("11n")
-                || icon.contains("13d") || icon.contains("13n")
-                || icon.contains("50d") || icon.contains("50n")){
+        }else if(icon.contains("03d") || icon.contains("04d")
+                || icon.contains("09d") || icon.contains("10d")
+                || icon.contains("11d") || icon.contains("13d")
+                || icon.contains("50d") ){
             background_2.setBackgroundResource(R.drawable.cold_background);
-        }else if (icon.contains("01d") || icon.contains("01n")
-                || icon.contains("02d") || icon.contains("02n")){
+        }else if (icon.contains("01d") || icon.contains("02d")){
             background_2.setBackgroundResource(R.drawable.summer_background);
         }
     }

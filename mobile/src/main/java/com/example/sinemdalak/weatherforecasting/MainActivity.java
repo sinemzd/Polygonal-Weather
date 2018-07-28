@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -40,7 +42,6 @@ import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import com.onesignal.OneSignal;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout overlay, overlay_2;
     Date date;
     Integer result;
-    String time;
     AdView adView;
-    String mood;
+    private long backPressedTime;
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -130,14 +131,13 @@ public class MainActivity extends AppCompatActivity {
         intent = getIntent();
         if(intent != null){
             receivedData = intent.getStringExtra("ID");
-
             //klavye kapansın
             getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
-            );
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
             if(receivedData != null){
                 getWeatherByID(receivedData);
-            }else{
+            }else {
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
                     buildAlertMessageNoGps();
@@ -153,12 +153,12 @@ public class MainActivity extends AppCompatActivity {
         adView.loadAd(adRequest);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void getDate() {
-        Calendar rightNow = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH");
-        time = simpleDateFormat.format(rightNow.getTime());
-        result = Integer.parseInt(time);
+    private void clodeKeyboard(){
+        View view = this.getCurrentFocus();
+        if(view != null){
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
     }
 
     private void clickText(){
@@ -199,7 +199,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent activity = new Intent(MainActivity.this,AutoComplete.class);
                 try {
                     activity.putExtra("icon", icon);
-                    activity.putExtra("time", time);
                     activity.setFlags(activity.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(activity);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -220,8 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            },REQUEST_LOCATION);
+                    Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION);
         }else{
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -301,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Example> call, Response<Example> response) {
                 example = response.body();
                 getData(example);
-
             }
 
             @Override
@@ -402,7 +399,6 @@ public class MainActivity extends AppCompatActivity {
         text7.setText(newDateStr4);
         text9.setText(newDateStr5);
 
-        mood = example.getList().get(0).getWeather().get(0).getDescription();
 
     }
 
@@ -452,18 +448,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getImage(String icon, ImageView image){
-        if(icon.contains("01d") || icon.contains("01n")){
+        if(icon.contains("01d")){
             GlideApp.with(context).load(R.drawable.img_weather_clearsky).centerInside().into(image);
-        }else if(icon.contains("02d") || icon.contains("02n")){
+        }else if(icon.contains("01n")){
+            GlideApp.with(context).load(R.drawable.img_weather_moon).centerInside().into(image);
+        }else if(icon.contains("02d")){
             GlideApp.with(context).load(R.drawable.img_weather_fewclouds).centerInside().into(image);
+        }else if(icon.contains("02n")){
+            GlideApp.with(context).load(R.drawable.img_weather_mooncloud).centerInside().into(image);
         }else if(icon.contains("03d") || icon.contains("03n")){
             GlideApp.with(context).load(R.drawable.img_weather_scatteredclouds).centerInside().into(image);
         }else if(icon.contains("04d") || icon.contains("04n")){
             GlideApp.with(context).load(R.drawable.img_weather_brokenclouds).centerInside().into(image);
         }else if(icon.contains("09d")|| icon.contains("09n")){
             GlideApp.with(context).load(R.drawable.img_weather_showerrain).centerInside().into(image);
-        }else if(icon.contains("10d") || icon.contains("10n")){
+        }else if(icon.contains("10d")){
             GlideApp.with(context).load(R.drawable.img_weather_rain).centerInside().into(image);
+        }else if(icon.contains("10n")){
+            GlideApp.with(context).load(R.drawable.img_weather_moonrain).centerInside().into(image);
         }else if(icon.contains("11d") || icon.contains("11n")){
             GlideApp.with(context).load(R.drawable.img_weather_thunderstorm).centerInside().into(image);
         }else if(icon.contains("13d") || icon.contains("13n")){
@@ -475,27 +477,32 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void getBackGroundChanger(String icon){
-        getDate();
-        if(result > 19){
-            background.setBackgroundResource(R.drawable.night_background);
+        if(icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
+                || icon.contains("04n") || icon.contains("09n") || icon.contains("10n")
+                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")){
+            background.setBackgroundResource(R.drawable.night_background_main);
             overlay.setBackgroundResource(R.drawable.night_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.night_overlay);
-        }else if(icon.contains("03d") || icon.contains("03n")
-                || icon.contains("04d") || icon.contains("04n")
-                || icon.contains("09d")|| icon.contains("09n")
-                || icon.contains("10d") || icon.contains("10n")
-                || icon.contains("11d") || icon.contains("11n")
-                || icon.contains("13d") || icon.contains("13n")
-                || icon.contains("50d") || icon.contains("50n")){
-            background.setBackgroundResource(R.drawable.cold_background);
+        }else if(icon.contains("03d") || icon.contains("04d")
+                || icon.contains("09d") || icon.contains("10d")
+                || icon.contains("11d") || icon.contains("13d")
+                || icon.contains("50d") ){
+            background.setBackgroundResource(R.drawable.cold_background_main);
             overlay.setBackgroundResource(R.drawable.cold_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.cold_overlay);
-        }else if (icon.contains("01d") || icon.contains("01n")
-                || icon.contains("02d") || icon.contains("02n")){
-            background.setBackgroundResource(R.drawable.summer_background);
+        }else if (icon.contains("01d") || icon.contains("02d")){
+            background.setBackgroundResource(R.drawable.summer_background_main);
             overlay.setBackgroundResource(R.drawable.summer_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.summer_overlay);
         }
+    }
+
+   @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override

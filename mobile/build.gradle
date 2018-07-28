@@ -21,9 +21,9 @@ android {
         applicationId "com.example.sinemdalak.weatherforecasting"
 
         manifestPlaceholders = [
-                onesignal_app_id               : 'cb6182f6-3e8a-4c9e-9904-3c1e8bd1f5b8',
+                onesignal_app_id:'cb6182f6-3e8a-4c9e-9904-3c1e8bd1f5b8',
                 // Project number pulled from dashboard, local value is ignored.
-                onesignal_google_project_number: '993317605424'
+                onesignal_google_project_number:'993317605424'
         ]
 
         minSdkVersion 23
