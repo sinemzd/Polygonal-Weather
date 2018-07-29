@@ -30,15 +30,18 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.sinemdalak.weatherforecasting.model.Example;
 import com.example.sinemdalak.weatherforecasting.utils.GlideApp;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Result ";
     TextView text, text2, text3, text4, text5, text6, text7, text8, text9, text10, txtCity;
     ImageView image1, image2, image3, image4, image5, imgbtn, imgbtn2;
-    private Context context ;
+    private Context context;
     ApiInterface apiService;
     Example example;
     int temperatureInteger, temperatureInteger2, temperatureInteger3, temperatureInteger4, temperatureInteger5;
@@ -123,25 +126,25 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION
-        },REQUEST_LOCATION);
+        }, REQUEST_LOCATION);
 
         clickImageButton();
         clickText();
 
         intent = getIntent();
-        if(intent != null){
+        if (intent != null) {
             receivedData = intent.getStringExtra("ID");
             //klavye kapansın
             getWindow().setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-            if(receivedData != null){
+            if (receivedData != null) {
                 getWeatherByID(receivedData);
-            }else {
+            } else {
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     buildAlertMessageNoGps();
-                }else if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     getLocation();
                 }
             }
@@ -153,23 +156,23 @@ public class MainActivity extends AppCompatActivity {
         adView.loadAd(adRequest);
     }
 
-    private void clodeKeyboard(){
+    private void clodeKeyboard() {
         View view = this.getCurrentFocus();
-        if(view != null){
+        if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    private void clickText(){
+    private void clickText() {
         text2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isClicked){
-                   isClicked = false;
-               }else{
-                   isClicked = true;
-               }
+                if (isClicked) {
+                    isClicked = false;
+                } else {
+                    isClicked = true;
+                }
 
                 getTemperature(isClicked);
 
@@ -183,9 +186,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     buildAlertMessageNoGps();
-                }else if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     getLocation();
                 }
 
@@ -196,13 +199,13 @@ public class MainActivity extends AppCompatActivity {
         imgbtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent activity = new Intent(MainActivity.this,AutoComplete.class);
+                Intent activity = new Intent(MainActivity.this, AutoComplete.class);
                 try {
                     activity.putExtra("icon", icon);
                     activity.setFlags(activity.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(activity);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                }catch(Exception e){
+                } catch (Exception e) {
                     startActivity(activity);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
@@ -214,30 +217,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocation() {
-        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
+                        != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION);
-        }else{
+                    Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        } else {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-            if(location != null){
+            if (location != null) {
                 double latti = location.getLatitude();
                 double longi = location.getLongitude();
                 lattitude = String.valueOf(latti);
                 longitude = String.valueOf(longi);
-                getWeatherByLonLat(latti,longi);
+                getWeatherByLonLat(latti, longi);
 
 
-            }else{
-                Toast.makeText(this,"Unable to trace your location",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Unable to trace your location", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    protected void buildAlertMessageNoGps(){
+    protected void buildAlertMessageNoGps() {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please turn on your GPS connection")
@@ -261,12 +264,12 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private void getWeatherByLonLat(double latti,double longi){
+    private void getWeatherByLonLat(double latti, double longi) {
 
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("lat",latti);
-        map.put("lon",longi);
-        map.put("APPID","4509d4e4fe84d0523805a73785201aae");
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("lat", latti);
+        map.put("lon", longi);
+        map.put("APPID", "4509d4e4fe84d0523805a73785201aae");
         apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<Example> call;
         call = apiService.getExampleResponse(map);
@@ -288,11 +291,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getWeatherByID(String receivedData){
+    private void getWeatherByID(String receivedData) {
 
         apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<Example> call;
-        call = apiService.getCityResponseById(receivedData,"4509d4e4fe84d0523805a73785201aae");
+        call = apiService.getCityResponseById(receivedData, "4509d4e4fe84d0523805a73785201aae");
         call.enqueue(new Callback<Example>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -310,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void getData(Example example){
+    public void getData(Example example) {
 
         getTemperature(isClicked);
 
@@ -318,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         String time2 = example.getList().get(8).getDtTxt();
         String time3 = example.getList().get(16).getDtTxt();
         String time4 = example.getList().get(24).getDtTxt();
-        String time5 = example.getList().get(32).getDtTxt();
+
 
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
@@ -367,29 +370,18 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat postFormatter4 = new SimpleDateFormat("EEE");
         newDateStr4 = postFormatter4.format(date4);
 
-        //time5
-        SimpleDateFormat formatter5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date5 = null;
-        try {
-            date5 = formatter5.parse(time5);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter5 = new SimpleDateFormat("EEE");
-        newDateStr5 = postFormatter5.format(date5);
 
         icon = example.getList().get(0).getWeather().get(0).getIcon();
         icon2 = example.getList().get(8).getWeather().get(0).getIcon();
         icon3 = example.getList().get(16).getWeather().get(0).getIcon();
         icon4 = example.getList().get(24).getWeather().get(0).getIcon();
-        icon5 = example.getList().get(32).getWeather().get(0).getIcon();
 
         getImage(icon, image1);
         getBackGroundChanger(icon);
         getImage(icon2, image2);
         getImage(icon3, image3);
         getImage(icon4, image4);
-        getImage(icon5, image5);
+
 
         txtCity.setText(location + " - " + country);
 
@@ -397,108 +389,160 @@ public class MainActivity extends AppCompatActivity {
         text3.setText(newDateStr2);
         text5.setText(newDateStr3);
         text7.setText(newDateStr4);
-        text9.setText(newDateStr5);
+        if (example.getList().size() >= 32) {
 
+            if (example.getList().get(32) != null) {
+                String time5 = example.getList().get(32).getDtTxt();
+                //time5
+                SimpleDateFormat formatter5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date5 = null;
+                try {
+                    date5 = formatter5.parse(time5);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter5 = new SimpleDateFormat("EEE");
+                newDateStr5 = postFormatter5.format(date5);
+                text9.setText(newDateStr5);
+                icon5 = example.getList().get(32).getWeather().get(0).getIcon();
+
+                getImage(icon5, image5);
+            }
+        }
+        else{
+            text9.setText("-");
+        }
 
     }
 
-    public void getTemperature(boolean isClicked){
+    double calculateFDegree(double d) {
+        return (d - 273.15) * 1.8 + 32;
+    }
 
-        if(isClicked){
+    double calculateCDegree(double d) {
+        return (d - 273.15);
+    }
 
-            double temperature = (((example.getList().get(0).getMain().getTemp()) - 273.15) * 1.8 + 32);
-            double temperature2 = (((example.getList().get(8).getMain().getTemp()) - 273.15) * 1.8 + 32);
-            double temperature3 = (((example.getList().get(16).getMain().getTemp()) - 273.15) * 1.8 + 32);
-            double temperature4 = (((example.getList().get(24).getMain().getTemp()) - 273.15) * 1.8 + 32);
-            double temperature5 = (((example.getList().get(32).getMain().getTemp()) - 273.15) * 1.8 + 32);
+    public void getTemperature(boolean isClicked) {
+
+        if (isClicked) {
+
+
+            double temperature = (calculateFDegree(example.getList().get(0).getMain().getTemp()));
+            double temperature2 = (calculateFDegree(example.getList().get(8).getMain().getTemp()));
+            double temperature3 = (calculateFDegree(example.getList().get(16).getMain().getTemp()));
+            double temperature4 = (calculateFDegree(example.getList().get(24).getMain().getTemp()));
+            if (example.getList().size() >= 32) {
+                if (example.getList().get(32) != null) {
+                    double temperature5 = (calculateFDegree(example.getList().get(32).getMain().getTemp()));
+                    temperatureInteger5 = (int) temperature5;
+                    text10.setText(temperatureInteger5 + "°F");
+                } else {
+                    text10.setText("-");
+
+                }
+            }
+            else{
+                text10.setText("-");
+            }
+
 
             temperatureInteger = (int) temperature;
             temperatureInteger2 = (int) temperature2;
             temperatureInteger3 = (int) temperature3;
             temperatureInteger4 = (int) temperature4;
-            temperatureInteger5 = (int) temperature5;
+
 
             text2.setText(temperatureInteger + "°F");
             text4.setText(temperatureInteger2 + "°F");
             text6.setText(temperatureInteger3 + "°F");
             text8.setText(temperatureInteger4 + "°F");
-            text10.setText(temperatureInteger5 + "°F");
 
-        }else {
+        } else {
 
-            double temperature = ((example.getList().get(0).getMain().getTemp()) - 273.15);
-            double temperature2 = ((example.getList().get(8).getMain().getTemp()) - 273.15);
-            double temperature3 = ((example.getList().get(16).getMain().getTemp()) - 273.15);
-            double temperature4 = ((example.getList().get(24).getMain().getTemp()) - 273.15);
-            double temperature5 = ((example.getList().get(32).getMain().getTemp()) - 273.15);
+            double temperature = (calculateCDegree(example.getList().get(0).getMain().getTemp()));
+            double temperature2 = (calculateCDegree(example.getList().get(8).getMain().getTemp()));
+            double temperature3 = (calculateCDegree(example.getList().get(16).getMain().getTemp()));
+            double temperature4 = (calculateCDegree(example.getList().get(24).getMain().getTemp()));
+            if (example.getList().size() >= 32) {
+                if (example.getList().get(32) != null) {
+                    double temperature5 = (calculateCDegree(example.getList().get(32).getMain().getTemp()));
+                    temperatureInteger5 = (int) temperature5;
+                    text10.setText(temperatureInteger5 + "°C");
+                } else {
+                    text10.setText("-");
+
+                }
+            }
+            else{
+                text10.setText("-");
+            }
 
             temperatureInteger = (int) temperature;
             temperatureInteger2 = (int) temperature2;
             temperatureInteger3 = (int) temperature3;
             temperatureInteger4 = (int) temperature4;
-            temperatureInteger5 = (int) temperature5;
 
             text2.setText(temperatureInteger + "°C");
             text4.setText(temperatureInteger2 + "°C");
             text6.setText(temperatureInteger3 + "°C");
             text8.setText(temperatureInteger4 + "°C");
-            text10.setText(temperatureInteger5 + "°C");
 
         }
     }
 
-    public void getImage(String icon, ImageView image){
-        if(icon.contains("01d")){
+    public void getImage(String icon, ImageView image) {
+        if (icon.contains("01d")) {
             GlideApp.with(context).load(R.drawable.img_weather_clearsky).centerInside().into(image);
-        }else if(icon.contains("01n")){
+        } else if (icon.contains("01n")) {
             GlideApp.with(context).load(R.drawable.img_weather_moon).centerInside().into(image);
-        }else if(icon.contains("02d")){
+        } else if (icon.contains("02d")) {
             GlideApp.with(context).load(R.drawable.img_weather_fewclouds).centerInside().into(image);
-        }else if(icon.contains("02n")){
+        } else if (icon.contains("02n")) {
             GlideApp.with(context).load(R.drawable.img_weather_mooncloud).centerInside().into(image);
-        }else if(icon.contains("03d") || icon.contains("03n")){
+        } else if (icon.contains("03d") || icon.contains("03n")) {
             GlideApp.with(context).load(R.drawable.img_weather_scatteredclouds).centerInside().into(image);
-        }else if(icon.contains("04d") || icon.contains("04n")){
+        } else if (icon.contains("04d") || icon.contains("04n")) {
             GlideApp.with(context).load(R.drawable.img_weather_brokenclouds).centerInside().into(image);
-        }else if(icon.contains("09d")|| icon.contains("09n")){
+        } else if (icon.contains("09d") || icon.contains("09n")) {
             GlideApp.with(context).load(R.drawable.img_weather_showerrain).centerInside().into(image);
-        }else if(icon.contains("10d")){
+        } else if (icon.contains("10d")) {
             GlideApp.with(context).load(R.drawable.img_weather_rain).centerInside().into(image);
-        }else if(icon.contains("10n")){
+        } else if (icon.contains("10n")) {
             GlideApp.with(context).load(R.drawable.img_weather_moonrain).centerInside().into(image);
-        }else if(icon.contains("11d") || icon.contains("11n")){
+        } else if (icon.contains("11d") || icon.contains("11n")) {
             GlideApp.with(context).load(R.drawable.img_weather_thunderstorm).centerInside().into(image);
-        }else if(icon.contains("13d") || icon.contains("13n")){
+        } else if (icon.contains("13d") || icon.contains("13n")) {
             GlideApp.with(context).load(R.drawable.img_weather_snow).centerInside().into(image);
-        }else if(icon.contains("50d") || icon.contains("50n")){
+        } else if (icon.contains("50d") || icon.contains("50n")) {
             GlideApp.with(context).load(R.drawable.img_weather_mist).centerInside().into(image);
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void getBackGroundChanger(String icon){
-        if(icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
+    public void getBackGroundChanger(String icon) {
+        if (icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
                 || icon.contains("04n") || icon.contains("09n") || icon.contains("10n")
-                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")){
+                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")) {
             background.setBackgroundResource(R.drawable.night_background_main);
             overlay.setBackgroundResource(R.drawable.night_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.night_overlay);
-        }else if(icon.contains("03d") || icon.contains("04d")
+        } else if (icon.contains("03d") || icon.contains("04d")
                 || icon.contains("09d") || icon.contains("10d")
                 || icon.contains("11d") || icon.contains("13d")
-                || icon.contains("50d") ){
+                || icon.contains("50d")) {
             background.setBackgroundResource(R.drawable.cold_background_main);
             overlay.setBackgroundResource(R.drawable.cold_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.cold_overlay);
-        }else if (icon.contains("01d") || icon.contains("02d")){
+        } else if (icon.contains("01d") || icon.contains("02d")) {
             background.setBackgroundResource(R.drawable.summer_background_main);
             overlay.setBackgroundResource(R.drawable.summer_overlay_big);
             overlay_2.setBackgroundResource(R.drawable.summer_overlay);
         }
     }
 
-   @Override
-    public void onBackPressed(){
+    @Override
+    public void onBackPressed() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
