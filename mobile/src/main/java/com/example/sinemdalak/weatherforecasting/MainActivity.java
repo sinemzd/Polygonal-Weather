@@ -8,12 +8,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -23,8 +24,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -38,7 +37,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Result ";
     TextView text, text2, text3, text4, text5, text6, text7, text8, text9, text10, txtCity;
-    ImageView image1, image2, image3, image4, image5, imgbtn, imgbtn2;
+    ImageView image, image2, image3, image4, image5, imgbtn, imgbtn2;
     private Context context;
     ApiInterface apiService;
     Example example;
@@ -59,17 +57,16 @@ public class MainActivity extends AppCompatActivity {
     String icon, icon2, icon3, icon4, icon5;
     LocationManager locationManager;
     private static final int REQUEST_LOCATION = 1;
+     static final int REQUEST_SEARCH_CITY = 2;
     String lattitude, longitude;
-    Intent intent;
-    String receivedData;
     Typeface typeface;
     RelativeLayout background;
     Boolean isClicked = false;
     LinearLayout overlay, overlay_2;
     Date date;
-    Integer result;
     AdView adView;
-    private long backPressedTime;
+    Boolean button = false;
+
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -77,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -113,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         text10.setTypeface(typeface);
         txtCity.setTypeface(typeface);
 
-        image1 = findViewById(R.id.image_1);
+        image = findViewById(R.id.image_1);
         image2 = findViewById(R.id.image_2);
         image3 = findViewById(R.id.image_3);
         image4 = findViewById(R.id.image_4);
@@ -124,31 +122,18 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION
-        }, REQUEST_LOCATION);
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        }
 
-        clickImageButton();
+        clickLocationImageButton();
+        clickNextPageImageButton();
         clickText();
 
-        intent = getIntent();
-        if (intent != null) {
-            receivedData = intent.getStringExtra("ID");
-            //klavye kapansın
-            getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-            if (receivedData != null) {
-                getWeatherByID(receivedData);
-            } else {
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    buildAlertMessageNoGps();
-                } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    getLocation();
-                }
-            }
-        }
 
         MobileAds.initialize(this, "ca-app-pub-7683616394936974~2469361229");
         adView = findViewById(R.id.adView);
@@ -156,11 +141,24 @@ public class MainActivity extends AppCompatActivity {
         adView.loadAd(adRequest);
     }
 
-    private void clodeKeyboard() {
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SEARCH_CITY) {
+            if (resultCode == RESULT_OK) {
+                String receivedData = data.getStringExtra("ID");
+
+                if (receivedData != null) {
+                    getWeatherByID(receivedData);
+                } else {
+                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        buildAlertMessageNoGps();
+                    } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        getLocation();
+                    }
+                }
+            }
         }
     }
 
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void clickImageButton() {
+    private void clickLocationImageButton() {
 
         imgbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,28 +190,40 @@ public class MainActivity extends AppCompatActivity {
                     getLocation();
                 }
 
-
             }
         });
+    }
+
+    private void clickNextPageImageButton() {
 
         imgbtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent activity = new Intent(MainActivity.this, AutoComplete.class);
+                Intent activity = new Intent(context, AutoComplete.class);
                 try {
                     activity.putExtra("icon", icon);
-                    activity.setFlags(activity.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(activity);
+                    startActivityForResult(activity, REQUEST_SEARCH_CITY);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 } catch (Exception e) {
-                    startActivity(activity);
+                    startActivityForResult(activity, REQUEST_SEARCH_CITY);
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
                 }
             }
         });
+    }
 
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getLocation();
+                }
+                return;
+            }
+        }
     }
 
     private void getLocation() {
@@ -224,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
             if (location != null) {
@@ -296,10 +307,12 @@ public class MainActivity extends AppCompatActivity {
         apiService = ApiClient.getClient().create(ApiInterface.class);
         Call<Example> call;
         call = apiService.getCityResponseById(receivedData, "4509d4e4fe84d0523805a73785201aae");
+
         call.enqueue(new Callback<Example>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onResponse(Call<Example> call, Response<Example> response) {
+
                 example = response.body();
                 getData(example);
             }
@@ -317,83 +330,127 @@ public class MainActivity extends AppCompatActivity {
 
         getTemperature(isClicked);
 
-        String time = example.getList().get(0).getDtTxt();
-        String time2 = example.getList().get(8).getDtTxt();
-        String time3 = example.getList().get(16).getDtTxt();
-        String time4 = example.getList().get(24).getDtTxt();
-
-
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
 
-        //time1
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = null;
-        try {
-            date = formatter.parse(time);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter = new SimpleDateFormat("dd MMMM - EEE");
-        newDateStr = postFormatter.format(date);
-
-        //time2
-        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date2 = null;
-        try {
-            date2 = formatter2.parse(time2);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter2 = new SimpleDateFormat("EEE");
-        newDateStr2 = postFormatter2.format(date2);
-
-        //time3
-        SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date3 = null;
-        try {
-            date3 = formatter3.parse(time3);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter3 = new SimpleDateFormat("EEE");
-        newDateStr3 = postFormatter3.format(date3);
-
-        //time4
-        SimpleDateFormat formatter4 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date4 = null;
-        try {
-            date4 = formatter4.parse(time4);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat postFormatter4 = new SimpleDateFormat("EEE");
-        newDateStr4 = postFormatter4.format(date4);
-
-
-        icon = example.getList().get(0).getWeather().get(0).getIcon();
-        icon2 = example.getList().get(8).getWeather().get(0).getIcon();
-        icon3 = example.getList().get(16).getWeather().get(0).getIcon();
-        icon4 = example.getList().get(24).getWeather().get(0).getIcon();
-
-        getImage(icon, image1);
-        getBackGroundChanger(icon);
-        getImage(icon2, image2);
-        getImage(icon3, image3);
-        getImage(icon4, image4);
-
-
         txtCity.setText(location + " - " + country);
 
-        text.setText(newDateStr);
-        text3.setText(newDateStr2);
-        text5.setText(newDateStr3);
-        text7.setText(newDateStr4);
+        //Time and Icon
+        if (example.getList().size() >= 0) {
+
+            if (example.getList().get(0) != null) {
+                String time = example.getList().get(0).getDtTxt();
+
+                //Time
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = null;
+                try {
+                    date = formatter.parse(time);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter = new SimpleDateFormat("dd MMMM - EEE");
+                newDateStr = postFormatter.format(date);
+
+                text.setText(newDateStr);
+                icon = example.getList().get(0).getWeather().get(0).getIcon();
+
+                //Icon
+                getImage(icon, image);
+                getBackGroundChanger(icon);
+
+            }
+        } else {
+            text.setText("-");
+        }
+
+        //Time 2 and Icon 2
+        if (example.getList().size() >= 8) {
+
+            if (example.getList().get(8) != null) {
+                String time2 = example.getList().get(8).getDtTxt();
+
+                //Time 2
+                SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date2 = null;
+                try {
+                    date2 = formatter2.parse(time2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter2 = new SimpleDateFormat("EEE");
+                newDateStr2 = postFormatter2.format(date2);
+
+                text3.setText(newDateStr2);
+                icon2 = example.getList().get(8).getWeather().get(0).getIcon();
+
+                //Icon 2
+                getImage(icon2, image2);
+            }
+        } else {
+            text3.setText("-");
+        }
+
+        //Time 3 and Icon 3
+        if (example.getList().size() >= 16) {
+
+            if (example.getList().get(16) != null) {
+                String time3 = example.getList().get(16).getDtTxt();
+
+                //Time 3
+                SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date3 = null;
+                try {
+                    date3 = formatter3.parse(time3);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter3 = new SimpleDateFormat("EEE");
+                newDateStr3 = postFormatter3.format(date3);
+
+                text5.setText(newDateStr3);
+                icon3 = example.getList().get(16).getWeather().get(0).getIcon();
+
+                //Icon 3
+                getImage(icon3, image3);
+            }
+        } else {
+            text5.setText("-");
+        }
+
+        //Time 4 and Icon 4
+        if (example.getList().size() >= 24) {
+
+            if (example.getList().get(24) != null) {
+                String time4 = example.getList().get(24).getDtTxt();
+
+                //Time 4
+                SimpleDateFormat formatter4 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date4 = null;
+                try {
+                    date4 = formatter4.parse(time4);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                SimpleDateFormat postFormatter4 = new SimpleDateFormat("EEE");
+                newDateStr4 = postFormatter4.format(date4);
+                text7.setText(newDateStr4);
+                icon4 = example.getList().get(24).getWeather().get(0).getIcon();
+
+                //Icon 4
+                getImage(icon4, image4);
+            }
+        } else {
+            text7.setText("-");
+        }
+
+        //Time 5 and Icon 5
         if (example.getList().size() >= 32) {
 
             if (example.getList().get(32) != null) {
                 String time5 = example.getList().get(32).getDtTxt();
-                //time5
+
+                //Time 5
                 SimpleDateFormat formatter5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date5 = null;
                 try {
@@ -406,10 +463,10 @@ public class MainActivity extends AppCompatActivity {
                 text9.setText(newDateStr5);
                 icon5 = example.getList().get(32).getWeather().get(0).getIcon();
 
+                //Icon 5
                 getImage(icon5, image5);
             }
-        }
-        else{
+        } else {
             text9.setText("-");
         }
 
@@ -427,11 +484,63 @@ public class MainActivity extends AppCompatActivity {
 
         if (isClicked) {
 
+            //temperature1 Celcius
+            if (example.getList().size() >= 0) {
+                if (example.getList().get(0) != null) {
+                    double temperature = (calculateFDegree(example.getList().get(0).getMain().getTemp()));
+                    temperatureInteger = (int) temperature;
+                    text2.setText(temperatureInteger + "°F");
+                } else {
+                    text2.setText("-");
 
-            double temperature = (calculateFDegree(example.getList().get(0).getMain().getTemp()));
-            double temperature2 = (calculateFDegree(example.getList().get(8).getMain().getTemp()));
-            double temperature3 = (calculateFDegree(example.getList().get(16).getMain().getTemp()));
-            double temperature4 = (calculateFDegree(example.getList().get(24).getMain().getTemp()));
+                }
+            } else {
+                text2.setText("-");
+            }
+
+            //temperature2 Celcius
+            if (example.getList().size() >= 8) {
+                if (example.getList().get(8) != null) {
+                    double temperature2 = (calculateFDegree(example.getList().get(8).getMain().getTemp()));
+                    temperatureInteger2 = (int) temperature2;
+                    text4.setText(temperatureInteger2 + "°F");
+                } else {
+                    text4.setText("-");
+
+                }
+            } else {
+                text4.setText("-");
+            }
+
+            //temperature3 Celcius
+            if (example.getList().size() >= 16) {
+                if (example.getList().get(16) != null) {
+                    double temperature3 = (calculateFDegree(example.getList().get(16).getMain().getTemp()));
+                    temperatureInteger3 = (int) temperature3;
+                    text6.setText(temperatureInteger3 + "°F");
+                } else {
+                    text6.setText("-");
+
+                }
+            } else {
+                text6.setText("-");
+            }
+
+            //temperature4 Celcius
+            if (example.getList().size() >= 24) {
+                if (example.getList().get(24) != null) {
+                    double temperature4 = (calculateFDegree(example.getList().get(24).getMain().getTemp()));
+                    temperatureInteger4 = (int) temperature4;
+                    text8.setText(temperatureInteger4 + "°F");
+                } else {
+                    text8.setText("-");
+
+                }
+            } else {
+                text8.setText("-");
+            }
+
+            //temperature5 Celcius
             if (example.getList().size() >= 32) {
                 if (example.getList().get(32) != null) {
                     double temperature5 = (calculateFDegree(example.getList().get(32).getMain().getTemp()));
@@ -441,29 +550,69 @@ public class MainActivity extends AppCompatActivity {
                     text10.setText("-");
 
                 }
-            }
-            else{
+            } else {
                 text10.setText("-");
             }
 
-
-            temperatureInteger = (int) temperature;
-            temperatureInteger2 = (int) temperature2;
-            temperatureInteger3 = (int) temperature3;
-            temperatureInteger4 = (int) temperature4;
-
-
-            text2.setText(temperatureInteger + "°F");
-            text4.setText(temperatureInteger2 + "°F");
-            text6.setText(temperatureInteger3 + "°F");
-            text8.setText(temperatureInteger4 + "°F");
-
         } else {
 
-            double temperature = (calculateCDegree(example.getList().get(0).getMain().getTemp()));
-            double temperature2 = (calculateCDegree(example.getList().get(8).getMain().getTemp()));
-            double temperature3 = (calculateCDegree(example.getList().get(16).getMain().getTemp()));
-            double temperature4 = (calculateCDegree(example.getList().get(24).getMain().getTemp()));
+            //temperature1 Fahrenheit
+            if (example.getList().size() >= 0) {
+                if (example.getList().get(0) != null) {
+                    double temperature = (calculateCDegree(example.getList().get(0).getMain().getTemp()));
+                    temperatureInteger = (int) temperature;
+                    text2.setText(temperatureInteger + "°C");
+                } else {
+                    text2.setText("-");
+
+                }
+            } else {
+                text2.setText("-");
+            }
+
+            //temperature2 Fahrenheit
+            if (example.getList().size() >= 8) {
+                if (example.getList().get(8) != null) {
+                    double temperature2 = (calculateCDegree(example.getList().get(8).getMain().getTemp()));
+                    temperatureInteger2 = (int) temperature2;
+                    text4.setText(temperatureInteger2 + "°C");
+                } else {
+                    text4.setText("-");
+
+                }
+            } else {
+                text4.setText("-");
+            }
+
+            //temperature3 Fahrenheit
+            if (example.getList().size() >= 16) {
+                if (example.getList().get(16) != null) {
+                    double temperature3 = (calculateCDegree(example.getList().get(16).getMain().getTemp()));
+                    temperatureInteger3 = (int) temperature3;
+                    text6.setText(temperatureInteger3 + "°C");
+                } else {
+                    text6.setText("-");
+
+                }
+            } else {
+                text6.setText("-");
+            }
+
+            //temperature4 Fahrenheit
+            if (example.getList().size() >= 24) {
+                if (example.getList().get(24) != null) {
+                    double temperature4 = (calculateCDegree(example.getList().get(24).getMain().getTemp()));
+                    temperatureInteger4 = (int) temperature4;
+                    text8.setText(temperatureInteger4 + "°C");
+                } else {
+                    text8.setText("-");
+
+                }
+            } else {
+                text8.setText("-");
+            }
+
+            //temperature5 Fahrenheit
             if (example.getList().size() >= 32) {
                 if (example.getList().get(32) != null) {
                     double temperature5 = (calculateCDegree(example.getList().get(32).getMain().getTemp()));
@@ -473,21 +622,9 @@ public class MainActivity extends AppCompatActivity {
                     text10.setText("-");
 
                 }
-            }
-            else{
+            } else {
                 text10.setText("-");
             }
-
-            temperatureInteger = (int) temperature;
-            temperatureInteger2 = (int) temperature2;
-            temperatureInteger3 = (int) temperature3;
-            temperatureInteger4 = (int) temperature4;
-
-            text2.setText(temperatureInteger + "°C");
-            text4.setText(temperatureInteger2 + "°C");
-            text6.setText(temperatureInteger3 + "°C");
-            text8.setText(temperatureInteger4 + "°C");
-
         }
     }
 

@@ -12,12 +12,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -25,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -45,7 +49,6 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
     TextView text;
     Intent intent;
     RelativeLayout background_2;
-
 
 
     @Override
@@ -72,17 +75,17 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
         try {
             getIntentSetBackground();
-        }catch (Exception e){
+        } catch (Exception e) {
             background_2.setBackgroundResource(R.drawable.default_background_autocomplete);
         }
 
         //klavye otomatik açılsın
-        inputMethodManager = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
         context = getApplicationContext();
         itemClickListener = this;
-        autoCompletePojoList=new ArrayList<>();
+        autoCompletePojoList = new ArrayList<>();
 
         recyclerView = findViewById(R.id.recycler_view);
         adapter = new RecyclerViewAdapter(context, autoCompletePojoList);
@@ -126,31 +129,33 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
     }
 
-    private void clickImgButton(){
+    private void clickImgButton() {
         imgbtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(AutoComplete.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+                //klavye kapansın
+                inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),0);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             }
         });
     }
 
-    public void getIntentSetBackground(){
+    public void getIntentSetBackground() {
 
         String icon = intent.getStringExtra("icon");
 
-        if(icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
+        if (icon.contains("01n") || icon.contains("02n") || icon.contains("03n")
                 || icon.contains("04n") || icon.contains("09n") || icon.contains("10n")
-                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")){
+                || icon.contains("11n") || icon.contains("13n") || icon.contains("50n")) {
             background_2.setBackgroundResource(R.drawable.night_background);
-        }else if(icon.contains("03d") || icon.contains("04d")
+        } else if (icon.contains("03d") || icon.contains("04d")
                 || icon.contains("09d") || icon.contains("10d")
                 || icon.contains("11d") || icon.contains("13d")
-                || icon.contains("50d") ){
+                || icon.contains("50d")) {
             background_2.setBackgroundResource(R.drawable.cold_background);
-        }else if (icon.contains("01d") || icon.contains("02d")){
+        } else if (icon.contains("01d") || icon.contains("02d")) {
             background_2.setBackgroundResource(R.drawable.summer_background);
         }
     }
@@ -183,13 +188,18 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
     @Override
     public void onItemClick(View view, int position) {
+
+        //klavye kapansın
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),0);
+
         ID = adapter.getCity(position);
         //Toast.makeText(this, "You clicked " + adapter.getCity(position), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(AutoComplete.this, MainActivity.class);
-        intent.putExtra("ID", ID);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-        overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+        Intent returnIntent = getIntent();
+        returnIntent.putExtra("ID", ID);
+        setResult(RESULT_OK, returnIntent);
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        finish();
+
 
     }
 
