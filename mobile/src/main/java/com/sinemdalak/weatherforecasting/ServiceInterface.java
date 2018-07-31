@@ -1,7 +1,7 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
-import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
-import com.example.sinemdalak.weatherforecasting.model.List;
+import com.sinemdalak.weatherforecasting.model.AutoCompletePojo;
+import com.sinemdalak.weatherforecasting.model.List;
 
 import java.util.ArrayList;
 

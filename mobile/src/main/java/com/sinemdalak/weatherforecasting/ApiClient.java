@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

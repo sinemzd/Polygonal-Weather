@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,14 +12,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
+import com.sinemdalak.weatherforecasting.model.AutoCompletePojo;
 
 import java.io.IOException;
 import java.security.KeyManagementException;

@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting.model;
+package com.sinemdalak.weatherforecasting.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -16,7 +16,7 @@ public class Example {
     private Integer cnt;
     @SerializedName("list")
     @Expose
-    private java.util.List<com.example.sinemdalak.weatherforecasting.model.List> list = null;
+    private java.util.List<com.sinemdalak.weatherforecasting.model.List> list = null;
     @SerializedName("city")
     @Expose
     private City city;
@@ -45,11 +45,11 @@ public class Example {
         this.cnt = cnt;
     }
 
-    public java.util.List<com.example.sinemdalak.weatherforecasting.model.List> getList() {
+    public java.util.List<com.sinemdalak.weatherforecasting.model.List> getList() {
         return list;
     }
 
-    public void setList(java.util.List<com.example.sinemdalak.weatherforecasting.model.List> list) {
+    public void setList(java.util.List<com.sinemdalak.weatherforecasting.model.List> list) {
         this.list = list;
     }
 

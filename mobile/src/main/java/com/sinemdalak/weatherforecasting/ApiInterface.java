@@ -1,6 +1,6 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
-import com.example.sinemdalak.weatherforecasting.model.Example;
+import com.sinemdalak.weatherforecasting.model.Example;
 
 import java.util.HashMap;
 

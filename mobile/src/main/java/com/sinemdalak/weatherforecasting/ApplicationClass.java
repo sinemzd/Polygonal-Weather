@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
 import android.app.Application;
 import com.onesignal.OneSignal;

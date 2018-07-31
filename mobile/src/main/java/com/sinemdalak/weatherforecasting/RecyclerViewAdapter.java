@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.example.sinemdalak.weatherforecasting.model.AutoCompletePojo;
+
+import com.sinemdalak.weatherforecasting.R;
+import com.sinemdalak.weatherforecasting.model.AutoCompletePojo;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{

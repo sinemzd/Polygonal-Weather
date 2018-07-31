@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting.model;
+package com.sinemdalak.weatherforecasting.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

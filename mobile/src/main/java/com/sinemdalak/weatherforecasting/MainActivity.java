@@ -1,4 +1,4 @@
-package com.example.sinemdalak.weatherforecasting;
+package com.sinemdalak.weatherforecasting;
 
 import android.Manifest;
 import android.content.Context;
@@ -30,8 +30,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.sinemdalak.weatherforecasting.model.Example;
-import com.example.sinemdalak.weatherforecasting.utils.GlideApp;
+import com.sinemdalak.weatherforecasting.model.Example;
+import com.sinemdalak.weatherforecasting.utils.GlideApp;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
