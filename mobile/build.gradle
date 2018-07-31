@@ -18,7 +18,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.example.sinemdalak.weatherforecasting"
+        applicationId "com.sinemdalak.weatherforecasting"
 
         manifestPlaceholders = [
                 onesignal_app_id:'cb6182f6-3e8a-4c9e-9904-3c1e8bd1f5b8',
