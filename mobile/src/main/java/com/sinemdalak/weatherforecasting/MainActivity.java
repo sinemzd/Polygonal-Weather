@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Date date;
     AdView adView;
     Boolean button = false;
-    //Intent widgetIntent;
+    Intent widgetIntent;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, retrofit2.Response response) {
                 Log.d("Response :", response.body().toString());
-                //widgetIntent = new Intent(context, WidgetProvider.class);
+                widgetIntent = new Intent(context, WidgetProvider.class);
                 example = (Example) response.body();
                 Log.d("Example :", response.body().toString());
                 getData(example);
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
 
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
-        //String description = example.getList().get(0).getWeather().get(0).getDescription();
+        String description = example.getList().get(0).getWeather().get(0).getDescription();
 
 
         if(country != null){
@@ -477,15 +477,14 @@ public class MainActivity extends AppCompatActivity {
             text9.setText("-");
         }
 
-        /*if(widgetIntent != null){
+        if(widgetIntent != null){
             widgetIntent.putExtra("location",location);
             widgetIntent.putExtra("country",country);
             widgetIntent.putExtra("description",description);
             widgetIntent.putExtra("icon",icon);
-            widgetIntent.setAction("com.sinemdalak.weatherforecasting.CUSTOM_INTENT");
+            widgetIntent.setAction("com.sinemdalak.weatherforecasting");
             getApplicationContext().sendBroadcast(widgetIntent);
-        }*/
-
+        }
     }
 
     double calculateFDegree(double d) {

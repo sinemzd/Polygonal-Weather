@@ -32,7 +32,21 @@
         <activity
             android:name=".AutoComplete"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <receiver android:name=".WidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_style" />
+        </receiver>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="fe829641b9272a0eee32192eb364f87f116ed9f0" />
     </application>
 
 </manifest>
