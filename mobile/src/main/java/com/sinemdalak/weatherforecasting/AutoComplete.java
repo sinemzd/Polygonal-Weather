@@ -129,6 +129,7 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     private void clickImgButton() {
+
         imgbtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -161,6 +162,7 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
 
     protected void getData(String name) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+
         service = ServiceClient.getClient(context).create(ServiceInterface.class);
         Call<ArrayList<AutoCompletePojo>> call;
         call = service.getServiceResponse(name);
@@ -190,7 +192,6 @@ public class AutoComplete extends AppCompatActivity implements RecyclerViewAdapt
 
         //klavye kapansın
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(),0);
-
         ID = adapter.getCity(position);
         //Toast.makeText(this, "You clicked " + adapter.getCity(position), Toast.LENGTH_SHORT).show();
         Intent returnIntent = getIntent();

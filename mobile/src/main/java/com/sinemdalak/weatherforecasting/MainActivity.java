@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     String icon, icon2, icon3, icon4, icon5;
     LocationManager locationManager;
     private static final int REQUEST_LOCATION = 1;
-     static final int REQUEST_SEARCH_CITY = 2;
+    static final int REQUEST_SEARCH_CITY = 2;
     String lattitude, longitude;
     Typeface typeface;
     RelativeLayout background;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Date date;
     AdView adView;
     Boolean button = false;
-
+    //Intent widgetIntent;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -130,10 +130,10 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         }
 
+        getLocation();
         clickLocationImageButton();
         clickNextPageImageButton();
         clickText();
-
 
         MobileAds.initialize(this, "ca-app-pub-7683616394936974~2469361229");
         adView = findViewById(R.id.adView);
@@ -214,8 +214,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -227,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocation() {
+
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -290,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, retrofit2.Response response) {
                 Log.d("Response :", response.body().toString());
+                //widgetIntent = new Intent(context, WidgetProvider.class);
                 example = (Example) response.body();
                 Log.d("Example :", response.body().toString());
                 getData(example);
@@ -332,8 +333,14 @@ public class MainActivity extends AppCompatActivity {
 
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
+        //String description = example.getList().get(0).getWeather().get(0).getDescription();
 
-        txtCity.setText(location + " - " + country);
+
+        if(country != null){
+            txtCity.setText(location + " - " + country);
+        }else {
+            txtCity.setText(location);
+        }
 
         //Time and Icon
         if (example.getList().size() >= 0) {
@@ -469,6 +476,15 @@ public class MainActivity extends AppCompatActivity {
         } else {
             text9.setText("-");
         }
+
+        /*if(widgetIntent != null){
+            widgetIntent.putExtra("location",location);
+            widgetIntent.putExtra("country",country);
+            widgetIntent.putExtra("description",description);
+            widgetIntent.putExtra("icon",icon);
+            widgetIntent.setAction("com.sinemdalak.weatherforecasting.CUSTOM_INTENT");
+            getApplicationContext().sendBroadcast(widgetIntent);
+        }*/
 
     }
 

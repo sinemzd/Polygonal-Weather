@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.sinemdalak.weatherforecasting.R;
 import com.sinemdalak.weatherforecasting.model.AutoCompletePojo;
 import java.util.List;
 
@@ -37,7 +35,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         viewHolder.country = String.valueOf(data.get(position).getCountry());
         Typeface typeface = Typeface.createFromAsset(viewHolder.itemView.getContext().getAssets(), "VAG_Rounded_Bold.ttf");
         viewHolder.text.setTypeface(typeface);
-        viewHolder.text.setText(viewHolder.city + " - " + viewHolder.country);
+        if(data.get(position).getCountry().isEmpty()) {
+            viewHolder.text.setText(viewHolder.city);
+        }else {
+            viewHolder.text.setText(viewHolder.city + " - " + viewHolder.country);
+        }
 
         if(position == data.size()-1){
             viewHolder.divider_line.setVisibility(View.GONE);
@@ -81,14 +83,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     String getCity(int name){
 
         return String.valueOf(data.get(name).getId());
-    }
-
-    String getSunset(int i){
-        return String.valueOf(data.get(i).getAstronomy().getSunset());
-    }
-
-    String getSunrise(int i){
-        return String.valueOf(data.get(i).getAstronomy().getSunrise());
     }
 
     void setClickListener(ItemClickListener itemClickListener){
