@@ -44,6 +44,11 @@
                 android:resource="@xml/appwidget_style" />
         </receiver>
 
+        <activity android:name=".AppWidgetConfig">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="fe829641b9272a0eee32192eb364f87f116ed9f0" />

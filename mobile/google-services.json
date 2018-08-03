@@ -1,0 +1,74 @@
+{
+  "project_info": {
+    "project_number": "993317605424",
+    "firebase_url": "https://polygonal-weather-forecasting.firebaseio.com",
+    "project_id": "polygonal-weather-forecasting",
+    "storage_bucket": "polygonal-weather-forecasting.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993317605424:android:6b26d964cea86c97",
+        "android_client_info": {
+          "package_name": "com.example.sinemdalak.weatherforecasting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993317605424-oujurhs95gj0dehsftjgnh6l6io8l8jo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCg7f_pogTGdBqymk0OWBFVoFrp9T7dnqw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      },
+      "admob_app_id": "ca-app-pub-7683616394936974~2469361229"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993317605424:android:50d5ee04a468e5c7",
+        "android_client_info": {
+          "package_name": "com.sinemdalak.weatherforecasting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993317605424-oujurhs95gj0dehsftjgnh6l6io8l8jo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCg7f_pogTGdBqymk0OWBFVoFrp9T7dnqw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

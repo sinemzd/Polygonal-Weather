@@ -1,6 +1,7 @@
 package com.sinemdalak.weatherforecasting;
 
 import android.Manifest;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -171,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isClicked = true;
                 }
-
+                getApplicationContext().sendBroadcast(widgetIntent);
                 getTemperature(isClicked);
 
             }
@@ -290,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, retrofit2.Response response) {
                 Log.d("Response :", response.body().toString());
-                widgetIntent = new Intent(context, WidgetProvider.class);
+                widgetIntent = new Intent(context, AppWidgetConfig.class);
                 example = (Example) response.body();
                 Log.d("Example :", response.body().toString());
                 getData(example);
@@ -485,6 +486,8 @@ public class MainActivity extends AppCompatActivity {
             widgetIntent.setAction("com.sinemdalak.weatherforecasting");
             getApplicationContext().sendBroadcast(widgetIntent);
         }
+
+
     }
 
     double calculateFDegree(double d) {
