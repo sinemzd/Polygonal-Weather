@@ -1,7 +1,9 @@
 package com.sinemdalak.weatherforecasting;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -68,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     AdView adView;
     Boolean button = false;
     Intent widgetIntent;
+
+    AppWidgetManager widgetManager;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -172,7 +177,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isClicked = true;
                 }
-                getApplicationContext().sendBroadcast(widgetIntent);
+                Intent intent = new Intent(context, WidgetProvider.class);
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+                sendBroadcast(intent);
                 getTemperature(isClicked);
 
             }
@@ -337,9 +346,9 @@ public class MainActivity extends AppCompatActivity {
         String description = example.getList().get(0).getWeather().get(0).getDescription();
 
 
-        if(country != null){
+        if (country != null) {
             txtCity.setText(location + " - " + country);
-        }else {
+        } else {
             txtCity.setText(location);
         }
 
@@ -478,11 +487,11 @@ public class MainActivity extends AppCompatActivity {
             text9.setText("-");
         }
 
-        if(widgetIntent != null){
-            widgetIntent.putExtra("location",location);
-            widgetIntent.putExtra("country",country);
-            widgetIntent.putExtra("description",description);
-            widgetIntent.putExtra("icon",icon);
+        if (widgetIntent != null) {
+            widgetIntent.putExtra("location", location);
+            widgetIntent.putExtra("country", country);
+            widgetIntent.putExtra("description", description);
+            widgetIntent.putExtra("icon", icon);
             widgetIntent.setAction("com.sinemdalak.weatherforecasting");
             getApplicationContext().sendBroadcast(widgetIntent);
         }
