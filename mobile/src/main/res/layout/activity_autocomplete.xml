@@ -61,8 +61,10 @@
             android:layout_marginLeft="10sp"
             android:layout_marginRight="10sp"
             android:layout_gravity="center"
-            android:hint="City Name"
-            android:background="@drawable/style_edittext"/>
+            android:hint="Place Name"
+            android:background="@drawable/style_edittext"
+            android:maxLines="1"
+            android:inputType="text"/>
 
     </LinearLayout>
 

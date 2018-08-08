@@ -41,8 +41,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             viewHolder.text.setText(viewHolder.city + " - " + viewHolder.country);
         }
 
+        //eğer tek satırsa sakla değilse göster
         if(position == data.size()-1){
             viewHolder.divider_line.setVisibility(View.GONE);
+        }
+        else{
+            viewHolder.divider_line.setVisibility(View.VISIBLE);
         }
 
     }
@@ -81,7 +85,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     //method for getting data at click position
     String getCity(int name){
-
         return String.valueOf(data.get(name).getId());
     }
 

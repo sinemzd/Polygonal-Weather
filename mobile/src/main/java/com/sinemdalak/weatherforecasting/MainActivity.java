@@ -1,7 +1,6 @@
 package com.sinemdalak.weatherforecasting;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,7 +11,6 @@ import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -70,10 +68,6 @@ public class MainActivity extends AppCompatActivity {
     Date date;
     AdView adView;
     Boolean button = false;
-    Intent widgetIntent;
-
-    AppWidgetManager widgetManager;
-
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -177,11 +171,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isClicked = true;
                 }
-                Intent intent = new Intent(context, WidgetProvider.class);
-                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-                int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-                sendBroadcast(intent);
                 getTemperature(isClicked);
 
             }
@@ -300,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, retrofit2.Response response) {
                 Log.d("Response :", response.body().toString());
-                widgetIntent = new Intent(context, AppWidgetConfig.class);
+                //widgetIntent = new Intent(context, AppWidgetConfig.class);
                 example = (Example) response.body();
                 Log.d("Example :", response.body().toString());
                 getData(example);
@@ -343,8 +332,6 @@ public class MainActivity extends AppCompatActivity {
 
         String location = example.getCity().getName();
         String country = example.getCity().getCountry();
-        String description = example.getList().get(0).getWeather().get(0).getDescription();
-
 
         if (country != null) {
             txtCity.setText(location + " - " + country);
@@ -486,17 +473,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             text9.setText("-");
         }
-
-        if (widgetIntent != null) {
-            widgetIntent.putExtra("location", location);
-            widgetIntent.putExtra("country", country);
-            widgetIntent.putExtra("description", description);
-            widgetIntent.putExtra("icon", icon);
-            widgetIntent.setAction("com.sinemdalak.weatherforecasting");
-            getApplicationContext().sendBroadcast(widgetIntent);
-        }
-
-
     }
 
     double calculateFDegree(double d) {
@@ -653,6 +629,17 @@ public class MainActivity extends AppCompatActivity {
                 text10.setText("-");
             }
         }
+
+        Intent intent = new Intent(context, WidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        intent.putExtra("location", example.getCity().getName());
+        intent.putExtra("description", example.getList().get(0).getWeather().get(0).getDescription());
+        intent.putExtra("icon",example.getList().get(0).getWeather().get(0).getIcon());
+        intent.putExtra("temperature",(example.getList().get(0).getMain().getTemp()).toString());
+        intent.putExtra("isClicked",isClicked);
+        sendBroadcast(intent);
     }
 
     public void getImage(String icon, ImageView image) {
