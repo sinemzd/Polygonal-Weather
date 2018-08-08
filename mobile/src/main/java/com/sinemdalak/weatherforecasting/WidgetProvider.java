@@ -14,7 +14,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public static final String TOAST_ACTION = "com.sinemdalak.weatherforecasting.TOAST_ACTION";
     public static final String EXTRA_ITEM = "com.sinemdalak.weatherforecasting.EXTRA_ITEM";
-    public static Integer integer=0; 
+    public static Integer integer=0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
